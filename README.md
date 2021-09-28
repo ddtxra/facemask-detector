@@ -1,4 +1,4 @@
-<h1 align="center">Face Mask Detection</h1>
+# Face Mask Detection
 
 ## :warning: TechStack/framework used
 
@@ -10,10 +10,10 @@
 
 ## references
 * [https://www.pyimagesearch.com/](https://www.pyimagesearch.com/2020/05/04/covid-19-face-mask-detector-with-opencv-keras-tensorflow-and-deep-learning/)
-* [https://github.com/chandrikadeb7/Face-Mask-Detection](https://github.com/chandrikadeb7/Face-Mask-Detection)
-* [MaskedFace-Net](https://github.com/cabani/MaskedFace-Net)
+* Dataset mask / nomask: [https://github.com/chandrikadeb7/Face-Mask-Detection](https://github.com/chandrikadeb7/Face-Mask-Detection)
+* Dataset incorrect: [MaskedFace-Net](https://github.com/cabani/MaskedFace-Net)
 
-## 🚀&nbsp; Installation
+## Installation
 1. Create a Python virtual environment named 'test' and activate it
 ```
 $ virtualenv test
@@ -27,7 +27,7 @@ $ source test/bin/activate
 $ pip3 install -r requirements.txt
 ```
 
-## :bulb: Working
+## Working
 
 1. Open terminal. Go into the cloned project directory and type the following command:
 ```
