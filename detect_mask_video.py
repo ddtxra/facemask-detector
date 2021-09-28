@@ -121,16 +121,20 @@ while True:
 		(startX, startY, endX, endY) = box
 		# (mask, withoutMask) = pred
 		# (mask, withoutMask, incorrectMask) = pred
-		argmax = str(pred.argmax())
+		idx_max = pred.argmax()
+		score = " {:.2f}%".format(pred[idx_max] * 100)
 
-
-		# determine the class label and color we'll use to draw
-		# the bounding box and text
-		label = argmax #"Mask" if mask > withoutMask else "No Mask"
-		color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+		if(idx_max == 0):
+			label = "Incorrect"
+			color = (255, 0, 0)
+		elif(idx_max == 1):
+			label = "Mask"
+			color = (0, 255, 0)
+		elif(idx_max == 2):
+			label = "NoMask"
+			color = (0, 0, 255)
 			
-		# include the probability in the label
-		#label = "{}: {:.2f}%".format(label)
+		label = label + score
 
 		# display the label and bounding box rectangle on the output
 		# frame
