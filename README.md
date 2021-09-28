@@ -30,6 +30,10 @@ source test/Scripts/activate
 ```
 $ pip3 install -r requirements.txt
 ```
+## Run
+```
+streamlit run app.py
+```
 
 ## Working
 

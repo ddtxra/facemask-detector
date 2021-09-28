@@ -6,15 +6,14 @@ import os
 from detect_mask_video import processFrame
 from detect_mask_video import loadModels
 import imutils
+import pandas as pd
 
 st.title("Facemask Detector")
 
-incorrect = 0
-mask = 0
-nomask = 0
-
-status_text = st.empty()
-status_text.text("Mask: " + str(mask) + "incorrect: " + str(incorrect) + "NoMask: " + str(nomask))
+cols = ['incorrect', 'mask', 'nomask']
+timeseries = np.array([[0, 0, 1], [0, 0, 0]])
+chart_data = pd.DataFrame(timeseries, columns=cols)
+handle = st.area_chart(data = chart_data, height = 2, use_container_width = True)
 
 run = st.checkbox('Run')
 
@@ -25,14 +24,10 @@ camera = cv2.VideoCapture(0)
 
 while run:
     _, frame = camera.read()
-    #frame = imutils.resize(frame, width=400)
-    (i, m, n) = processFrame(frame, faceModel, maskModel)
-    mask = mask + m
-    incorrect = incorrect + i
-    nomask = nomask + n
-
-    status_text.text("Mask: " + str(mask) + "incorrect: " + str(incorrect) + "NoMask: " + str(nomask))
-
+    (incorrect, mask, nomask) = processFrame(frame, faceModel, maskModel)
+    timeseries = np.append(timeseries, [[incorrect, mask, nomask]], axis=0)
+    chart_data = pd.DataFrame(timeseries, columns=cols)
+    handle.area_chart(chart_data)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     FRAME_WINDOW.image(frame)
 else:
