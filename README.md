@@ -1,6 +1,6 @@
 # Face Mask Detection
 
-## :warning: TechStack/framework used
+## TechStack/framework used
 
 - [OpenCV](https://opencv.org/)
 - [Caffe-based face detector](https://caffe.berkeleyvision.org/)
@@ -20,6 +20,10 @@ $ virtualenv test
 ```
 ```
 $ source test/bin/activate
+```
+or in windows
+```
+source test/Scripts/activate
 ```
 
 2. Now, run the following command in your Terminal/Command Prompt to install the libraries required

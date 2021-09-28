@@ -13,6 +13,8 @@ import time
 import cv2
 import os
 
+face_confidence = 0.5
+
 def detect_and_predict_mask(frame, faceNet, maskNet):
 	# grab the dimensions of the frame and then construct a blob
 	# from it
@@ -38,7 +40,7 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 
 		# filter out weak detections by ensuring the confidence is
 		# greater than the minimum confidence
-		if confidence > args["confidence"]:
+		if confidence > face_confidence:
 			# compute the (x, y)-coordinates of the bounding box for
 			# the object
 			box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
@@ -75,39 +77,27 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 	# locations
 	return (locs, preds)
 
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-f", "--face", type=str,
-	default="face_detector",
-	help="path to face detector model directory")
-ap.add_argument("-m", "--model", type=str,
-	default="mask_detector.model",
-	help="path to trained face mask detector model")
-ap.add_argument("-c", "--confidence", type=float, default=0.5,
-	help="minimum probability to filter weak detections")
-args = vars(ap.parse_args())
+def loadModels():
+	# load our serialized face detector model from disk
+	print("[INFO] loading face detector model...")
+	prototxtPath = "face_detector/deploy.prototxt"
+	weightsPath = "face_detector/res10_300x300_ssd_iter_140000.caffemodel"
+	faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
-# load our serialized face detector model from disk
-print("[INFO] loading face detector model...")
-prototxtPath = os.path.sep.join([args["face"], "deploy.prototxt"])
-weightsPath = os.path.sep.join([args["face"],
-	"res10_300x300_ssd_iter_140000.caffemodel"])
-faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
+	# load the face mask detector model from disk
+	print("[INFO] loading face mask detector model...")
+	maskNet = load_model("mask_detector.model")
+	return (faceNet, maskNet)
 
-# load the face mask detector model from disk
-print("[INFO] loading face mask detector model...")
-maskNet = load_model(args["model"])
+def processFrame(frame, faceModel, maskModel):
 
-# initialize the video stream and allow the camera sensor to warm up
-print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
-time.sleep(2.0)
-
-def processFrame(frame):
+	mask = 0
+	incorrect = 0
+	nomask = 0
 
 	# detect faces in the frame and determine if they are wearing a
 	# face mask or not
-	(locs, preds) = detect_and_predict_mask(frame, faceNet, maskNet)
+	(locs, preds) = detect_and_predict_mask(frame, faceModel, maskModel)
 
 	# loop over the detected face locations and their corresponding
 	# locations
@@ -122,13 +112,15 @@ def processFrame(frame):
 		if(idx_max == 0):
 			label = "Incorrect"
 			color = (255, 0, 0)
+			incorrect = incorrect + 1
 		elif(idx_max == 1):
 			label = "Mask"
 			color = (0, 255, 0)
+			mask = mask + 1
 		elif(idx_max == 2):
 			label = "NoMask"
 			color = (0, 0, 255)
-			
+			nomask = nomask + 1
 		label = label + score
 
 		# display the label and bounding box rectangle on the output
@@ -137,8 +129,17 @@ def processFrame(frame):
 			cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
 		cv2.rectangle(frame, (startX, startY), (endX, endY), color, 2)
 
+	return (incorrect, mask, nomask)
+
 
 def start():
+	# initialize the video stream and allow the camera sensor to warm up
+	print("[INFO] starting video stream...")
+	vs = VideoStream(src=0).start()
+	time.sleep(2.0)
+
+	(faceModel, maskModel) = loadModels()
+
 	# loop over the frames from the video stream
 	while True:
 		# grab the frame from the threaded video stream and resize it
@@ -146,7 +147,7 @@ def start():
 		frame = vs.read()
 		frame = imutils.resize(frame, width=400)
 
-		processFrame(frame)
+		processFrame(frame, faceModel, maskModel)
 		
 		# show the output frame
 		cv2.imshow("Frame", frame)
@@ -160,4 +161,5 @@ def start():
 	cv2.destroyAllWindows()
 	vs.stop()
 
-start()
+if __name__ == "__main__":
+	start()
