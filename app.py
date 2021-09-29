@@ -13,7 +13,7 @@ st.title("Facemask Detector")
 cols = ['incorrect', 'mask', 'nomask']
 timeseries = np.array([[0, 0, 1], [0, 0, 0]])
 chart_data = pd.DataFrame(timeseries, columns=cols)
-handle = st.area_chart(data = chart_data, height = 2, use_container_width = True)
+handle = st.area_chart(data = chart_data, use_container_width = True)
 
 run = st.checkbox('Run')
 
