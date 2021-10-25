@@ -111,7 +111,7 @@ def processFrame(frame, faceModel, maskModel):
 
 		if(idx_max == 0):
 			label = "Incorrect"
-			color = (255, 0, 0)
+			color = (255, 255, 0)
 			incorrect = incorrect + 1
 		elif(idx_max == 1):
 			label = "Mask"
@@ -121,12 +121,29 @@ def processFrame(frame, faceModel, maskModel):
 			label = "NoMask"
 			color = (0, 0, 255)
 			nomask = nomask + 1
-		label = label + score
+		label_score = label + score
 
 		# display the label and bounding box rectangle on the output
 		# frame
-		cv2.putText(frame, label, (startX, startY - 10),
-			cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
+		cv2.putText(frame, label_score, (startX, startY - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
+		width = round((endX - startX) / 2)
+		height = round((endY - startY) / 2)
+		#make sure it is squared
+		dim = (min(width, height), min(width, height))
+		smiley = cv2.resize(cv2.imread("smiley/" + label + ".png"), dim, interpolation = cv2.INTER_AREA)
+		sty = startY+smiley.shape[0]
+		stx = startX+smiley.shape[1]
+		#print(str(sty) + " " + str(stx))
+
+		#y1, y2 = startY, startY + smiley.shape[0]
+		#x1, x2 = startX, startX + smiley.shape[1]
+		#alpha_s = smiley[:, :, 3] / 255.0
+		#alpha_l = 1.0 - alpha_s
+		#for c in range(0, 3):
+		#	frame[y1:y2, x1:x2, c] = (alpha_s * smiley[:, :, c] + alpha_l * frame[y1:y2, x1:x2, c])
+
+		frame[startY:sty, startX:stx] = smiley
+
 		cv2.rectangle(frame, (startX, startY), (endX, endY), color, 2)
 
 	return (incorrect, mask, nomask)
@@ -145,7 +162,7 @@ def start():
 		# grab the frame from the threaded video stream and resize it
 		# to have a maximum width of 400 pixels
 		frame = vs.read()
-		frame = imutils.resize(frame, width=400)
+		frame = imutils.resize(frame, width=800)
 
 		processFrame(frame, faceModel, maskModel)
 		

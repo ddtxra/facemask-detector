@@ -14,11 +14,8 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.keras.utils import to_categorical
-from sklearn.preprocessing import LabelBinarizer
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
 from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
@@ -37,11 +34,12 @@ ap.add_argument("-m", "--model", type=str,
 	help="path to output face mask detector model")
 args = vars(ap.parse_args())
 
-# initialize the initial learning rate, number of epochs to train for,
+# initialize the initial learning rate, 
+INIT_LR = 1e-4 
+# number of epochs to train for,
+EPOCHS = 20 
 # and batch size
-INIT_LR = 1e-4
-EPOCHS = 20
-BS = 32
+BS = 32 
 
 # grab the list of images in our dataset directory, then initialize
 # the list of data (i.e., images) and class images
@@ -58,6 +56,7 @@ for imagePath in imagePaths:
 	# load the input image (224x224) and preprocess it
 	image = load_img(imagePath, target_size=(224, 224))
 	image = img_to_array(image)
+	# The inputs pixel values are scaled between -1 and 1, sample-wise. (from mobilenet_v2 lib)
 	image = preprocess_input(image)
 
 	# update the data and labels lists, respectively
@@ -77,10 +76,8 @@ labels = lb.fit_transform(labels)
 
 print(labels)
 
-# partition the data into training and testing splits using 75% of
-# the data for training and the remaining 25% for testing
-(trainX, testX, trainY, testY) = train_test_split(data, labels,
-	test_size=0.20, stratify=labels, random_state=42)
+# partition the data into training and testing splits using 75% of the data for training and the remaining 25% for testing
+(trainX, testX, trainY, testY) = train_test_split(data, labels,	test_size=0.20, stratify=labels, random_state=42)
 
 # construct the training image generator for data augmentation
 aug = ImageDataGenerator(

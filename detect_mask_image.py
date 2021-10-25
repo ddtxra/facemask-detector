@@ -78,19 +78,29 @@ def mask_image():
 			face = preprocess_input(face)
 			face = np.expand_dims(face, axis=0)
 
+			mask = 0
+			incorrect = 0
+			nomask = 0
+
 			# pass the face through the model to determine if the face
 			# has a mask or not
-			(mask, withoutMask, incorrectMask) = model.predict(face)[0]
+			pred = model.predict(face)[0]
+			idx_max = pred.argmax()
+			score = " {:.2f}%".format(pred[idx_max] * 100)
 
-			argmax = str(model.predict(face)[0].argmax())
-
-			# determine the class label and color we'll use to draw
-			# the bounding box and text
-			label = argmax#"Mask" if mask > withoutMask else "No Mask"
-			color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
-
-			# include the probability in the label
-			label = "{}: {:.2f}%".format(label, max(mask, withoutMask) * 100)
+			if(idx_max == 0):
+				label = "Incorrect"
+				color = (255, 0, 0)
+				incorrect = incorrect + 1
+			elif(idx_max == 1):
+				label = "Mask"
+				color = (0, 255, 0)
+				mask = mask + 1
+			elif(idx_max == 2):
+				label = "NoMask"
+				color = (0, 0, 255)
+				nomask = nomask + 1
+			label = label + score
 
 			# display the label and bounding box rectangle on the output
 			# frame
