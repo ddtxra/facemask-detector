@@ -27,13 +27,13 @@ def mask_image():
 	# load our serialized face detector model from disk
 	print("[INFO] loading face detector model...")
 	prototxtPath = os.path.sep.join([args["face"], "deploy.prototxt"])
-	weightsPath = os.path.sep.join([args["face"],
-		"res10_300x300_ssd_iter_140000.caffemodel"])
+	weightsPath = os.path.sep.join([args["face"], "res10_300x300_ssd_iter_140000.caffemodel"])
 	net = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 	# load the face mask detector model from disk
 	print("[INFO] loading face mask detector model...")
 	model = load_model(args["model"])
+	print(model.summary())
 
 	# load the input image from disk, clone it, and grab the image spatial
 	# dimensions
@@ -42,8 +42,7 @@ def mask_image():
 	(h, w) = image.shape[:2]
 
 	# construct a blob from the image
-	blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300),
-		(104.0, 177.0, 123.0))
+	blob = cv2.dnn.blobFromImage(image, 1.0, (300, 300),(104.0, 177.0, 123.0))
 
 	# pass the blob through the network and obtain the face detections
 	print("[INFO] computing face detections...")
@@ -104,8 +103,7 @@ def mask_image():
 
 			# display the label and bounding box rectangle on the output
 			# frame
-			cv2.putText(image, label, (startX, startY - 10),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
+			cv2.putText(image, label, (startX, startY - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
 			cv2.rectangle(image, (startX, startY), (endX, endY), color, 2)
 
 	# show the output image
